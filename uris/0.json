@@ -1,0 +1,11 @@
+{
+    "name": "Blockchain Accelerator NFT 0",
+    "description": "My first NFT collection - Javier Moreno",
+    "image": "ipfs://bafybeigcdrqdan7ptp72q4flonmuujbaprmfn55wkth3p454272fou5yey",
+    "attributes": [
+        {
+            "trait_type": "Rarity",
+            "value": "0"
+        }
+    ]
+}
