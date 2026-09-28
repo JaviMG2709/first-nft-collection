@@ -1,45 +1,50 @@
-# Blockchain Accelerator NFT
+# NFT Collection — Limited ERC-721 Minting
 
 [English](README.md) | [Español](README.es.md)
 
-Blockchain Accelerator NFT is a small ERC-721 collection built with Solidity and Foundry. Anyone can mint one of two NFTs on a first-come, first-served basis. Token metadata and images are hosted on IPFS.
+NFT Collection is a personal Solidity learning project built with Foundry. It implements a small ERC-721 collection with public minting, sequential token IDs, a fixed supply cap, and token metadata referenced through IPFS.
 
 ## Features
 
-- `mint()` mints the next available token to the caller. Minting has no contract fee, per-wallet limit, or owner restriction; network gas fees still apply.
-- The maximum supply is set to **2** in the deployment script. Token IDs start at `0` and end at `1`.
-- `currentTokenId` tracks the next token ID, while `totalSupply` stores the maximum supply.
-- `tokenURI(tokenId)` returns the IPFS base URI followed by the token ID and `.json` (for example, `.../0.json`). It reverts for tokens that do not exist.
-- Each successful mint emits the custom `MinNFT` event, as well as the standard ERC-721 `Transfer` event.
+- `mint()` mints the next available token to the caller on a first-come, first-served basis.
+- Minting has no contract fee, per-wallet limit, allowlist, or owner restriction. Minters still pay the network gas fee.
+- Token IDs are assigned sequentially starting at `0`.
+- `currentTokenId` stores the next token ID to be minted.
+- `totalSupply` stores the collection's maximum supply; it does not represent the number of tokens already minted.
+- Minting reverts with `Sold out` once `currentTokenId` reaches `totalSupply`.
+- `tokenURI(tokenId)` returns the base URI followed by the token ID and `.json`, and reverts when the token does not exist.
+- Each successful mint emits the custom `MinNFT` event and the standard ERC-721 `Transfer` event.
+- The collection name, symbol, supply cap, and base URI are set in the constructor and cannot be updated later.
 
-## Deployed contract
+The current deployment script configures a maximum supply of **2**, so its token IDs are `0` and `1`.
+
+## Deployment
 
 The latest successful deployment recorded in this repository is on **Arbitrum One** (chain ID `42161`):
 
-- [Contract on Arbiscan](https://arbiscan.io/address/0x8fd339ad2074d7ddef3e5d8e5aaf9f53915581d2): `0x8fd339ad2074d7ddef3e5d8e5aaf9f53915581d2`
-- [Collection on OpenSea](https://opensea.io/es/collection/blockchain-accelerator-nft-139082643): view the NFTs
+- [View the contract on Arbiscan](https://arbiscan.io/address/0x8fd339ad2074d7ddef3e5d8e5aaf9f53915581d2): `0x8fd339ad2074d7ddef3e5d8e5aaf9f53915581d2`
 
-The OpenSea page displays the collection's NFTs. You can use the Arbiscan link to check the contract address.
-
-## Tech stack
+## Tech Stack
 
 - Solidity `0.8.34`
-- Foundry / Forge for compilation and deployment
-- OpenZeppelin Contracts for ERC-721 and string conversion
-- IPFS for token metadata and images
+- Foundry and Forge for formatting, compilation, testing, and deployment
+- OpenZeppelin Contracts for the ERC-721 implementation and integer-to-string conversion
+- IPFS URIs for token metadata and images
+- GitHub Actions for continuous integration
 
-## Project structure
+## Project Structure
 
 | Path | Purpose |
 | --- | --- |
 | `src/BANFTCollection.sol` | ERC-721 contract and minting logic |
-| `script/DeployNFTCollection.s.sol` | Deployment script and collection settings |
+| `script/DeployNFTCollection.s.sol` | Deployment script and current collection parameters |
 | `uris/0.json`, `uris/1.json` | Local copies of the token metadata |
-| `broadcast/` | Recorded Arbitrum deployments |
+| `broadcast/` | Recorded Arbitrum One deployment transactions |
+| `.github/workflows/test.yml` | CI checks for formatting, compilation, and tests |
 | `foundry.toml` | Foundry configuration |
-| `lib/` | Git submodules for dependencies |
+| `lib/` | Git submodules containing Foundry and OpenZeppelin dependencies |
 
-## Getting started
+## Getting Started
 
 Install [Foundry](https://getfoundry.sh/) and Git, then clone the repository with its submodules:
 
@@ -48,36 +53,47 @@ git clone --recurse-submodules <repository-url>
 cd nft-collection
 ```
 
-If you already cloned the repository without submodules:
+If the repository was cloned without its submodules, initialize them separately:
 
 ```sh
 git submodule update --init --recursive
 ```
 
-Build the contracts and check their formatting:
+Build the contract and check its formatting:
 
 ```sh
 forge build
 forge fmt --check
 ```
 
-The deployment script reads `PRIVATE_KEY` from the environment and uses the RPC URL supplied to Forge. Review the script's name, symbol, maximum supply, and IPFS base URI before deploying your own collection.
+The deployment script reads `PRIVATE_KEY` from the environment and uses the RPC URL supplied to Forge. Before deploying a new collection, review the constructor parameters defined in the script, especially the name, symbol, maximum supply, and IPFS base URI.
 
-## Testing and current scope
+## Testing
 
-`forge build` succeeds. There are **no automated tests yet**; `forge test` currently reports that no tests were found. The repository's CI workflow runs formatting, build, and test commands.
+The contract compiles successfully and passes the formatting check. There are currently no automated tests; `forge test` reports that no tests were found.
 
-The contract has no owner controls, mint price, per-wallet limit, or metadata update function. The metadata base URI and maximum supply are fixed at deployment. The custom event is named `MinNFT` in the contract; this spelling is retained because it is part of the deployed contract's interface. This is a learning project and has not been audited for production use.
+The GitHub Actions workflow runs formatting, compilation, and test commands on pushes, pull requests, and manual dispatches.
 
-## What I am learning
+## Current Scope
 
-- Creating an ERC-721 collection with OpenZeppelin.
+This repository contains one mintable ERC-721 contract, a Foundry deployment script, two local metadata files, and recorded Arbitrum One deployments. It does not include a frontend or an off-chain indexing service.
+
+The contract has no owner controls, mint price, per-wallet limit, allowlist, pause mechanism, reveal mechanism, or metadata update function. The base URI and maximum supply are fixed at deployment. This is a learning project and has not been audited for production use.
+
+The custom event is named `MinNFT` in the contract. That spelling is retained here because it is part of the deployed contract's interface.
+
+## What I Am Learning
+
+- Building an ERC-721 collection with OpenZeppelin.
 - Assigning sequential token IDs and enforcing a supply cap.
-- Storing NFT metadata and images on IPFS.
-- Deploying a contract with Foundry and checking its recorded transactions.
+- Linking NFT metadata and images through IPFS.
+- Writing and running a deployment script with Foundry.
+- Inspecting recorded deployment transactions on a public network.
 
-## Next steps
+## Next Steps
 
-- Add tests for successful mints, the sold-out condition, token URIs, and event emission.
-- Review minting behavior with contracts that implement `onERC721Received`.
-- If deploying a new version, rename `MinNFT` to `MintNFT` and update any clients that consume the event.
+- Add tests for successful minting, the sold-out condition, token URIs, and event emission.
+- Test minting to contracts that implement `onERC721Received`.
+- If deploying a new version, rename `MinNFT` to `MintNFT` and update any event consumers.
+- Consider adding a frontend for viewing the collection and minting available tokens.
+- Run static analysis and obtain a security review before considering production use.
